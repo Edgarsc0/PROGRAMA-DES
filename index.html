@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.16/dist/sweetalert2.all.min.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div class="container mt-3">
+        <div class="mt-4 p-5 bg-primary text-white rounded">
+            <h1>Cifrado DES</h1> 
+            <p>¡Ingresa tu archivo txt para cifrarlo!</p> 
+        </div>
+        <br>
+        <hr>
+        <ul class="list-group">
+            <li class="list-group-item active">Codificar/Decodificar</li>
+            <li class="list-group-item" id="contentCifrado">
+                <br>
+                <input type="file" id="file">
+                <br>
+                <br>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Clave</span>
+                    <input type="text" id="clave" class="form-control" maxlength="8" placeholder="maximo 8 caracteres">
+                </div>
+            </li>
+            <li class="list-group-item">
+                <input type="radio" class="form-check-input" name="optradio" value="0" checked> Codificar
+                <label class="form-check-label" for="radio1"></label>
+                <input type="radio" class="form-check-input" name="optradio" value="1"> Decodificar
+                <label class="form-check-label" for="radio2"></label>
+            </li>
+            <li class="list-group-item">
+                <button type="button" id="button" class="btn btn-primary" disabled>¡Elige un archivo txt para cifrar/decodificar!</button>
+            </li>
+        </ul>
+        <br>
+        <div class="card">
+            <div class="card-header">Content</div>
+            <div class="card-body" id="cont">Content</div>
+          </div>
+    </div>
+    
+    <script>
+        const divContent=document.getElementById("cont");
+        const button=document.getElementById("button");
+        mode=0;
+        document.getElementsByName("optradio").forEach((item)=>{
+            item.onchange=()=>{
+                globalThis.mode=item.value;
+            }
+        })
+        button.onclick=()=>{
+            const clave=document.getElementById("clave").value;
+            if(clave!=""){
+                if(mode==0){
+                    //code
+                    const encrypted = CryptoJS.DES.encrypt(divContent.childNodes[0].textContent,clave);
+                    /*console.log(encrypted.toString());
+                    console.log(CryptoJS.DES.decrypt(encrypted,clave).toString(CryptoJS.enc.Utf8));*/
+                    const element = document.createElement('a');
+                    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(encrypted.toString()));
+                    element.setAttribute('download', "TextoCodificado");
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                }if(mode==1){
+                    //decode
+                    const decrypted=CryptoJS.DES.decrypt(divContent.childNodes[0].textContent,clave);
+                    const element = document.createElement('a');
+                    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(decrypted.toString(CryptoJS.enc.Utf8)));
+                    element.setAttribute('download', "TextoDecodificado");
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                }
+            }else{
+                Swal.fire({  
+                    title:"Atencion",  
+                    text:"No has introducido la clave."
+                });
+            }
+        }
+        const input = document.getElementById('file');
+        input.addEventListener('change', function () {
+            if(input.files.length>0 && input.value.split(".")[1]=="txt") {
+                readFile(input.files[0]);
+            }else{
+                Swal.fire({  
+                    title:"Atencion",  
+                    text:"No has introducido un archivo txt. Vuelve a intentarlo."
+                });
+            }
+        });
+        const readFile=(file)=>{
+            divContent.innerHTML=`<div class="spinner-border"></div>`
+            const mode=document.getElementById("")
+            const reader=new FileReader();
+            reader.onload=function() {
+                divContent.innerHTML=reader.result; 
+            }
+            reader.readAsText(file);
+            button.removeAttribute("disabled")
+        }
+    </script>
+</body>
+</html>
